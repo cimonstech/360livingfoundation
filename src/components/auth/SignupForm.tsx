@@ -15,6 +15,8 @@ export default function SignupForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+  const [resending, setResending] = useState(false)
+  const [resendMsg, setResendMsg] = useState('')
 
   async function handleSignup() {
     if (password.length < 8) {
@@ -27,6 +29,7 @@ export default function SignupForm() {
     }
     setLoading(true)
     setError('')
+    setResendMsg('')
     const supabase = createClient()
     const { error: signUpError } = await supabase.auth.signUp({
       email,
@@ -45,6 +48,26 @@ export default function SignupForm() {
     setLoading(false)
   }
 
+  async function handleResend() {
+    if (!email) return
+    setResending(true)
+    setError('')
+    setResendMsg('')
+    const supabase = createClient()
+    const { error: resendError } = await supabase.auth.resend({
+      type: 'signup',
+      email,
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+    })
+    if (resendError) {
+      setError(resendError.message)
+      setResending(false)
+      return
+    }
+    setResendMsg('Verification email sent. Please check your inbox (and spam).')
+    setResending(false)
+  }
+
   if (success) {
     return (
       <div className="max-w-sm">
@@ -55,6 +78,33 @@ export default function SignupForm() {
         <p className="text-sm font-light text-charcoal-muted leading-relaxed">
           We sent a verification link to <strong>{email}</strong>. Click the link to verify your account and get started.
         </p>
+        <div className="mt-6">
+          {resendMsg && (
+            <div className="mb-3 rounded-xl border border-brand-green-light bg-brand-green-pale px-4 py-3 text-sm text-charcoal">
+              {resendMsg}
+            </div>
+          )}
+          {error && (
+            <div className="mb-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {error}
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={() => void handleResend()}
+            disabled={resending}
+            className="inline-flex items-center justify-center rounded-full border border-gray-200 px-5 py-2.5 text-sm font-dm text-charcoal-muted hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {resending ? (
+              <>
+                <Loader2 size={16} className="animate-spin" />
+                <span>Resending…</span>
+              </>
+            ) : (
+              'Resend verification email'
+            )}
+          </button>
+        </div>
       </div>
     )
   }

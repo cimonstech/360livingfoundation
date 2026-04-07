@@ -1,14 +1,11 @@
 'use client'
 
-import type { BookingFormData, PricingSettings } from '@/types'
+import type { BookingFormData } from '@/types'
 import { format, parseISO } from 'date-fns'
-import { Lock, Phone } from 'lucide-react'
+import { Lock } from 'lucide-react'
 
 type Props = {
   formData: Partial<BookingFormData>
-  pricing: PricingSettings | null
-  /** Resolved session price in GHS, or null when hidden */
-  sessionPriceGhs: number | null
 }
 
 function formatTime12(time: string) {
@@ -17,17 +14,11 @@ function formatTime12(time: string) {
   return format(d, 'h:mm a')
 }
 
-export default function StepConfirm({ formData, pricing, sessionPriceGhs }: Props) {
+export default function StepConfirm({ formData }: Props) {
   const dateStr = formData.appointment_date
   const formattedDate = dateStr
     ? format(parseISO(dateStr + 'T12:00:00'), 'EEEE, d MMMM yyyy')
     : '—'
-
-  const instructions =
-    pricing?.payment_instructions ??
-    'Payment is made via Mobile Money (MoMo). Use your Booking ID as the payment reference. Send payment to: 0538045503 (Selasi Doku). Once payment is made, your session will be confirmed.'
-  const momoNumber = pricing?.momo_number ?? '0538045503'
-  const momoName = pricing?.momo_name ?? 'Selasi Doku'
 
   return (
     <div>
@@ -69,34 +60,6 @@ export default function StepConfirm({ formData, pricing, sessionPriceGhs }: Prop
         {formData.notes?.trim() && (
           <p className="text-sm text-charcoal-muted italic mt-3 font-dm leading-relaxed">&ldquo;{formData.notes}&rdquo;</p>
         )}
-      </div>
-
-      <div className="bg-brand-green-pale border border-brand-green-light rounded-2xl p-6 mt-4">
-        <div className="flex items-start gap-3 mb-4">
-          <Phone size={16} className="text-brand-green flex-shrink-0 mt-0.5" aria-hidden />
-          <div>
-            <p className="text-sm font-medium text-charcoal font-dm">Payment via Mobile Money (MoMo)</p>
-            <p className="text-xs text-charcoal-muted mt-1 leading-relaxed font-dm font-light">{instructions}</p>
-          </div>
-        </div>
-        <div className="bg-white rounded-xl p-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-xs text-charcoal-muted font-dm">Send payment to</p>
-            <p className="font-medium text-sm text-charcoal mt-0.5 font-dm">{momoNumber}</p>
-            <p className="text-xs text-charcoal-muted font-dm">{momoName}</p>
-          </div>
-          {sessionPriceGhs != null && (
-            <div className="text-left sm:text-right">
-              <p className="text-xs text-charcoal-muted font-dm">Amount</p>
-              <p className="font-lora text-xl font-medium text-brand-pink mt-0.5">
-                GHS {sessionPriceGhs.toFixed(2)}
-              </p>
-            </div>
-          )}
-        </div>
-        <p className="text-xs text-charcoal-muted mt-3 text-center font-dm font-light">
-          Your Booking ID will be shown after confirmation — use it as your payment reference.
-        </p>
       </div>
 
       <div className="bg-brand-green-pale rounded-xl p-4 flex items-start gap-3 mt-4">

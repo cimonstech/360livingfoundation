@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createServerClient } from '@supabase/ssr'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(request: NextRequest) {
@@ -8,11 +8,36 @@ export async function GET(request: NextRequest) {
   const type = searchParams.get('type')
   const next = searchParams.get('next') ?? '/dashboard'
 
+  const redirectToConfirmed = (base: string) => {
+    const url = new URL('/auth/confirmed', base)
+    url.searchParams.set('next', next)
+    return url.toString()
+  }
+
   if (code) {
-    const supabase = await createClient()
+    let response = NextResponse.redirect(redirectToConfirmed(origin))
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll()
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              response.cookies.set(name, value, options)
+            })
+          },
+        },
+      }
+    )
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (error) {
-      return NextResponse.redirect(`${origin}/login?error=auth_failed`)
+      const url = new URL('/login', origin)
+      url.searchParams.set('error', 'auth_failed')
+      url.searchParams.set('reason', error.message)
+      return NextResponse.redirect(url)
     }
     const {
       data: { user },
@@ -24,29 +49,43 @@ export async function GET(request: NextRequest) {
         destination = '/admin'
       }
     }
-    return NextResponse.redirect(`${origin}${destination}`)
+    // Return the same response instance so any auth cookies set by Supabase
+    // remain attached to the redirect response.
+    return response
   }
 
   if (tokenHash && type) {
-    const supabase = await createClient()
+    const verifiedRedirect = new URL('/auth/confirmed', origin)
+    verifiedRedirect.searchParams.set('next', next)
+
+    let response = NextResponse.redirect(verifiedRedirect)
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll()
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              response.cookies.set(name, value, options)
+            })
+          },
+        },
+      }
+    )
     const { error } = await supabase.auth.verifyOtp({
       token_hash: tokenHash,
-      type: type as 'email' | 'recovery' | 'signup',
+      type: type as any,
     })
     if (!error) {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-      let destination = '/dashboard?verified=true'
-      if (user) {
-        const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle()
-        if (profile?.role === 'admin') {
-          destination = '/admin'
-        }
-      }
-      return NextResponse.redirect(`${origin}${destination}`)
+      return response
     }
   }
 
-  return NextResponse.redirect(`${origin}/login?error=verification_failed`)
+  const fallback = new URL('/login', origin)
+  fallback.searchParams.set('error', 'verification_failed')
+  if (type) fallback.searchParams.set('type', type)
+  return NextResponse.redirect(fallback)
 }

@@ -29,6 +29,12 @@ type BookingRow = {
   duration_minutes: number
 }
 
+function safeDurationMinutes(v: number) {
+  const n = Number(v)
+  if (!Number.isFinite(n) || n <= 0) return 60
+  return Math.min(240, Math.max(15, Math.round(n)))
+}
+
 function normalizeTimeForSlots(t: string): string {
   const [h, m] = t.split(':')
   return `${String(Number(h)).padStart(2, '0')}:${String(Number(m)).padStart(2, '0')}`
@@ -126,13 +132,15 @@ export default function StepDateTime({ service, onSelect, selectedDate, selected
     if (!row || !row.is_active) return []
     const startT = normalizeTimeForSlots(row.start_time)
     const endT = normalizeTimeForSlots(row.end_time)
-    return generateSlots(startT, endT, service.duration_minutes)
+    const duration = safeDurationMinutes(service.duration_minutes)
+    return generateSlots(startT, endT, duration)
   }, [selectedDate, availabilityByDow, service.duration_minutes])
 
   const slotBooked = useCallback(
     (slot: string) => {
+      const duration = safeDurationMinutes(service.duration_minutes)
       return bookedRows.some((b) =>
-        slotOverlapsBooking(slot, service.duration_minutes, b.appointment_time, b.duration_minutes)
+        slotOverlapsBooking(slot, duration, b.appointment_time, safeDurationMinutes(b.duration_minutes))
       )
     },
     [bookedRows, service.duration_minutes]
