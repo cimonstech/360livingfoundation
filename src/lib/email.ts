@@ -534,3 +534,112 @@ export async function sendSponsorInquiryReceived({
     `,
   })
 }
+
+function escapeHtmlForEmail(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+}
+
+function formatStatusLabel(status: string): string {
+  return escapeHtmlForEmail(status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()))
+}
+
+/** Notify submitter when an admin updates their foundation submission status (dashboard). */
+export async function sendFoundationSubmissionStatusUpdate({
+  table,
+  recipientEmail,
+  recipientName,
+  newStatus,
+  programTitle,
+  orgName,
+  inquiryType,
+}: {
+  table: 'applications' | 'partners' | 'volunteers' | 'sponsors'
+  recipientEmail: string
+  recipientName: string
+  newStatus: string
+  programTitle?: string
+  orgName?: string
+  inquiryType?: 'sponsor' | 'donate'
+}) {
+  const email = recipientEmail.trim().toLowerCase()
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    console.warn('[Foundation Email] Status update skipped: invalid recipient email')
+    return
+  }
+
+  const name = escapeHtmlForEmail(recipientName.trim() || 'there')
+  const statusLabel = formatStatusLabel(newStatus)
+  const prog = escapeHtmlForEmail(programTitle?.trim() || 'your chosen programme')
+  const org = escapeHtmlForEmail(orgName?.trim() || 'your organisation')
+  const label = inquiryType === 'donate' ? 'donation' : 'sponsorship'
+
+  let headline = 'Your submission has been updated'
+  let body = `<p style="font-size:14px;color:#6B6B6B;line-height:1.7;margin:12px 0 24px;">Hi ${name},</p>`
+
+  if (table === 'applications') {
+    headline = 'Update on your programme application'
+    if (newStatus === 'reviewing') {
+      body += `<p style="font-size:14px;color:#6B6B6B;line-height:1.7;margin:0 0 16px;">Your application for <strong>${prog}</strong> is now <strong>being reviewed</strong>. We may reach out within 1–2 business days if we need anything further.</p>`
+    } else if (newStatus === 'accepted') {
+      body += `<p style="font-size:14px;color:#6B6B6B;line-height:1.7;margin:0 0 16px;">We're pleased to let you know your application for <strong>${prog}</strong> has been <strong>accepted</strong>. Our team will follow up with next steps shortly.</p>`
+    } else if (newStatus === 'waitlisted') {
+      body += `<p style="font-size:14px;color:#6B6B6B;line-height:1.7;margin:0 0 16px;">Thank you for your interest in <strong>${prog}</strong>. Your application is currently on our <strong>waitlist</strong>. We'll notify you if a place becomes available.</p>`
+    } else if (newStatus === 'rejected') {
+      body += `<p style="font-size:14px;color:#6B6B6B;line-height:1.7;margin:0 0 16px;">Thank you for applying for <strong>${prog}</strong>. After careful review, we're unable to offer you a place in this cohort. We hope you'll stay connected for future opportunities with the Foundation.</p>`
+    } else {
+      body += `<p style="font-size:14px;color:#6B6B6B;line-height:1.7;margin:0 0 16px;">Your application for <strong>${prog}</strong> has been updated. Current status: <strong>${statusLabel}</strong>.</p>`
+    }
+  } else if (table === 'partners') {
+    headline = 'Update on your partnership enquiry'
+    if (newStatus === 'reviewing') {
+      body += `<p style="font-size:14px;color:#6B6B6B;line-height:1.7;margin:0 0 16px;">Your partnership enquiry for <strong>${org}</strong> is <strong>under review</strong>. We'll be in touch within 1–2 business days.</p>`
+    } else if (newStatus === 'active') {
+      body += `<p style="font-size:14px;color:#6B6B6B;line-height:1.7;margin:0 0 16px;">Great news — we're moving forward with a partnership involving <strong>${org}</strong>. Our team will contact you with next steps.</p>`
+    } else if (newStatus === 'declined') {
+      body += `<p style="font-size:14px;color:#6B6B6B;line-height:1.7;margin:0 0 16px;">Thank you for your interest in partnering with 360 Living Foundation. We're unable to proceed with this enquiry at this time. We appreciate your understanding.</p>`
+    } else {
+      body += `<p style="font-size:14px;color:#6B6B6B;line-height:1.7;margin:0 0 16px;">Your partnership enquiry for <strong>${org}</strong> has been updated. Current status: <strong>${statusLabel}</strong>.</p>`
+    }
+  } else if (table === 'volunteers') {
+    headline = 'Update on your volunteer signup'
+    if (newStatus === 'reviewing') {
+      body += `<p style="font-size:14px;color:#6B6B6B;line-height:1.7;margin:0 0 16px;">Your volunteer signup is <strong>being reviewed</strong>. We'll be in touch with next steps when ready.</p>`
+    } else if (newStatus === 'active') {
+      body += `<p style="font-size:14px;color:#6B6B6B;line-height:1.7;margin:0 0 16px;">You're now marked as <strong>active</strong> in our volunteer community. Watch for messages from our team with ways to get involved.</p>`
+    } else if (newStatus === 'inactive') {
+      body += `<p style="font-size:14px;color:#6B6B6B;line-height:1.7;margin:0 0 16px;">Your volunteer profile has been updated. If you have questions, reply to this email or contact us at <a href="mailto:info@360livingfoundation.org" style="color:#E8007D;">info@360livingfoundation.org</a>.</p>`
+    } else {
+      body += `<p style="font-size:14px;color:#6B6B6B;line-height:1.7;margin:0 0 16px;">Your volunteer signup has been updated. Current status: <strong>${statusLabel}</strong>.</p>`
+    }
+  } else if (table === 'sponsors') {
+    headline = `Update on your ${label} enquiry`
+    if (newStatus === 'contacted') {
+      body += `<p style="font-size:14px;color:#6B6B6B;line-height:1.7;margin:0 0 16px;">Your ${label} enquiry has been marked as <strong>contacted</strong>. If you haven't heard from us yet, we'll follow up within 1–2 business days.</p>`
+    } else if (newStatus === 'confirmed') {
+      body += `<p style="font-size:14px;color:#6B6B6B;line-height:1.7;margin:0 0 16px;">Thank you — your ${label} enquiry is <strong>confirmed</strong>. Our team will share next steps by email.</p>`
+    } else if (newStatus === 'declined') {
+      body += `<p style="font-size:14px;color:#6B6B6B;line-height:1.7;margin:0 0 16px;">Thank you for your interest in supporting 360 Living Foundation. We're unable to proceed with this enquiry at this time. We truly appreciate your generosity.</p>`
+    } else {
+      body += `<p style="font-size:14px;color:#6B6B6B;line-height:1.7;margin:0 0 16px;">Your ${label} enquiry has been updated. Current status: <strong>${statusLabel}</strong>.</p>`
+    }
+  }
+
+  body += `<p style="font-size:13px;color:#6B6B6B;line-height:1.7;">Questions? Email <a href="mailto:info@360livingfoundation.org" style="color:#E8007D;">info@360livingfoundation.org</a> or call 0264589293.</p>`
+
+  const clientSubject = `${headline} — 360 Living Foundation`
+  const clientHtml = `
+      <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:40px 20px;color:#3D3D3D;">
+        ${foundationBrandHeader}
+        <h2 style="font-size:18px;font-weight:500;">${escapeHtmlForEmail(headline)}</h2>
+        ${body}
+        ${foundationFooter}
+      </div>
+    `
+
+  console.log('[Foundation Email] Status update to client:', email, newStatus)
+  await sendFoundationEmail({ to: email, subject: clientSubject, html: clientHtml })
+}

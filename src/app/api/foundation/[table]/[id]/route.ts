@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { assertAdminSession } from '@/lib/assert-admin'
 import { sanitizeLongText, sanitizeString, sanitizeUuid } from '@/lib/sanitize'
+import { sendFoundationSubmissionStatusUpdate } from '@/lib/email'
 
 const TABLES = {
   applications: {
@@ -23,6 +24,13 @@ const TABLES = {
 } as const
 
 type TableKey = keyof typeof TABLES
+
+const FETCH_COLUMNS: Record<TableKey, string> = {
+  applications: 'status, full_name, email, program_title',
+  partners: 'status, contact_name, email, organisation_name',
+  volunteers: 'status, full_name, email',
+  sponsors: 'status, full_name, email, inquiry_type',
+}
 
 export async function PATCH(
   request: NextRequest,
@@ -63,8 +71,71 @@ export async function PATCH(
   }
 
   const supabase = createAdminClient()
+  const key = table as TableKey
+  const { data: existing, error: fetchError } = await supabase
+    .from(config.table)
+    .select(FETCH_COLUMNS[key])
+    .eq('id', cleanId)
+    .maybeSingle()
+
+  if (fetchError) return NextResponse.json({ error: fetchError.message }, { status: 500 })
+  if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+
+  type Fetched = {
+    status: string
+    email: string
+    full_name?: string
+    program_title?: string
+    contact_name?: string
+    organisation_name?: string
+    inquiry_type?: string
+  }
+  const row = existing as unknown as Fetched
+  const prevStatus = String(row.status ?? '')
+  const nextStatus = typeof updates.status === 'string' ? updates.status : null
+
   const { error } = await supabase.from(config.table).update(updates).eq('id', cleanId)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  if (nextStatus && nextStatus !== prevStatus) {
+    try {
+      if (key === 'applications' && row.full_name && row.program_title) {
+        await sendFoundationSubmissionStatusUpdate({
+          table: 'applications',
+          recipientEmail: row.email,
+          recipientName: row.full_name,
+          newStatus: nextStatus,
+          programTitle: row.program_title,
+        })
+      } else if (key === 'partners' && row.contact_name && row.organisation_name) {
+        await sendFoundationSubmissionStatusUpdate({
+          table: 'partners',
+          recipientEmail: row.email,
+          recipientName: row.contact_name,
+          newStatus: nextStatus,
+          orgName: row.organisation_name,
+        })
+      } else if (key === 'volunteers' && row.full_name) {
+        await sendFoundationSubmissionStatusUpdate({
+          table: 'volunteers',
+          recipientEmail: row.email,
+          recipientName: row.full_name,
+          newStatus: nextStatus,
+        })
+      } else if (key === 'sponsors' && row.full_name) {
+        const inquiryType = row.inquiry_type === 'donate' ? 'donate' : 'sponsor'
+        await sendFoundationSubmissionStatusUpdate({
+          table: 'sponsors',
+          recipientEmail: row.email,
+          recipientName: row.full_name,
+          newStatus: nextStatus,
+          inquiryType,
+        })
+      }
+    } catch (err) {
+      console.error('[Foundation] Status update notification email failed:', err)
+    }
+  }
 
   return NextResponse.json({ success: true })
 }

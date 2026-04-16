@@ -6,7 +6,7 @@ export default function TopContactBar() {
   const tel = company.phone.replace(/\s/g, '')
   return (
     <div
-      className="border-y border-black px-4 py-2 text-[11px] font-medium text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] sm:text-xs"
+      className="hidden border-y border-black px-4 py-2 text-[11px] font-medium text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] sm:text-xs lg:block"
       style={{
         background: 'linear-gradient(90deg, #E8007D 0%, #2D7D5E 45%, #3a3248 100%)',
       }}

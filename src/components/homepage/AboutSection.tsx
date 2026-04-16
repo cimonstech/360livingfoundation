@@ -8,13 +8,13 @@ export default function AboutSection() {
   return (
     <section className="bg-white py-24">
       <div className="mx-auto grid max-w-7xl grid-cols-1 items-start gap-16 px-6 lg:grid-cols-2 lg:px-10">
-        <div className="order-2 text-center lg:order-1 lg:text-left">
+        <div className="order-2 text-left lg:order-1">
           <p className="font-dm text-xs font-medium uppercase tracking-widest text-brand-green">{whoWeAre.eyebrow}</p>
           <h2 className="mt-3 font-lora text-3xl font-normal leading-snug text-charcoal lg:text-4xl">
             {whoWeAre.titleLine1}{' '}
             <em className="font-lora italic text-brand-pink">{whoWeAre.titleEmphasis}</em>
           </h2>
-          <div className="mx-auto mt-4 max-w-md font-dm text-sm font-light leading-relaxed text-charcoal-muted lg:mx-0">
+          <div className="mt-4 max-w-md font-dm text-sm font-light leading-relaxed text-charcoal-muted">
             {whoWeAre.paragraphs.map((p) => (
               <p key={p} className="mb-4 last:mb-0">
                 {p}
@@ -22,10 +22,10 @@ export default function AboutSection() {
             ))}
           </div>
 
-          <p className="mx-auto mt-8 font-dm text-xs font-medium uppercase tracking-widest text-brand-pink lg:mx-0">
+          <p className="mt-8 font-dm text-xs font-medium uppercase tracking-widest text-brand-pink">
             {aboutSnippet.eyebrow}
           </p>
-          <div className="mx-auto mt-3 max-w-md font-dm text-sm font-light leading-relaxed text-charcoal-muted lg:mx-0">
+          <div className="mt-3 max-w-md font-dm text-sm font-light leading-relaxed text-charcoal-muted">
             {aboutSnippet.paragraphs.map((p) => (
               <p key={p} className="mb-4 last:mb-0">
                 {p}
@@ -33,7 +33,7 @@ export default function AboutSection() {
             ))}
           </div>
 
-          <div className="mt-8 flex flex-wrap justify-center gap-3 lg:justify-start">
+          <div className="mt-8 flex flex-wrap justify-start gap-3">
             <Link
               href="/about"
               className="rounded-full bg-brand-pink px-6 py-3 font-dm text-sm font-medium text-white transition-opacity hover:opacity-90"
