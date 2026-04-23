@@ -7,15 +7,17 @@ export default function OurModel() {
     <section className="bg-white py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
         <div className="grid grid-cols-1 items-center gap-16 lg:grid-cols-2">
-          <div className="relative">
-            <Image
-              src="/rncc.jpg"
-              alt="RNCC model — Resilient Narrative-Centered Counselling"
-              width={800}
-              height={920}
-              className="h-[460px] w-full rounded-2xl object-cover object-top"
-            />
-            <div className="absolute bottom-4 right-4 max-w-[200px] rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+          <div className="relative mx-auto w-full max-w-md lg:max-w-lg">
+            <div className="relative aspect-[3/4] w-full overflow-hidden rounded-2xl bg-charcoal-light ring-1 ring-charcoal/10">
+              <Image
+                src="/images/rise.jpg"
+                alt="RNCC model — Resilient Narrative-Centered Counselling"
+                fill
+                className="object-contain object-center"
+                sizes="(max-width: 1024px) 100vw, 32rem"
+              />
+            </div>
+            <div className="absolute bottom-4 right-4 z-10 max-w-[200px] rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
               <p className="font-dm text-xs text-charcoal-muted">Our Approach</p>
               <p className="mt-1 font-lora text-lg font-medium text-charcoal">RNCC Model</p>
               <p className="mt-1 font-dm text-xs leading-relaxed text-charcoal-muted">

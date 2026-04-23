@@ -19,22 +19,38 @@ export default function GetInvolvedPageContent() {
 
   return (
     <>
-      <section className="relative overflow-hidden bg-warm-cream py-20">
+      <section className="relative overflow-hidden bg-charcoal py-24 lg:py-28">
         <div className="absolute inset-0">
           <Image
             src="/images/about-hero.jpg"
             alt=""
             fill
-            className="object-cover object-center opacity-55"
+            className="object-cover object-center"
             sizes="100vw"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-charcoal/55 via-charcoal/35 to-warm-cream" />
+          {/* Strong legibility scrim: dark over the photo, then soft fade into page cream below */}
+          <div
+            className="absolute inset-0 bg-gradient-to-b from-black/78 via-black/62 to-black/45"
+            aria-hidden
+          />
+          <div
+            className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-warm-cream"
+            aria-hidden
+          />
         </div>
         <div className="relative mx-auto max-w-3xl px-6 text-center lg:px-10">
-          <p className="font-dm text-xs font-medium uppercase tracking-widest text-white/90">{g.hero.eyebrow}</p>
-          <h1 className="mt-4 font-lora text-4xl font-normal text-white lg:text-5xl">{g.hero.title}</h1>
-          <p className="mt-4 font-dm text-sm font-light leading-relaxed text-white/80">{g.hero.intro}</p>
+          <p
+            className="font-dm text-xs font-semibold uppercase tracking-widest text-brand-green-pale [text-shadow:0_1px_2px_rgba(0,0,0,0.8)]"
+          >
+            {g.hero.eyebrow}
+          </p>
+          <h1 className="mt-4 font-lora text-4xl font-normal leading-tight text-white [text-shadow:0_2px_28px_rgba(0,0,0,0.55),0_1px_3px_rgba(0,0,0,0.9)] lg:text-5xl">
+            {g.hero.title}
+          </h1>
+          <p className="mx-auto mt-4 max-w-2xl font-dm text-base font-normal leading-relaxed text-white/95 [text-shadow:0_1px_16px_rgba(0,0,0,0.65),0_1px_2px_rgba(0,0,0,0.85)]">
+            {g.hero.intro}
+          </p>
         </div>
       </section>
 

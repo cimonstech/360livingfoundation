@@ -85,12 +85,19 @@ export default function ServicesAccordion() {
                       <ArrowRight size={14} aria-hidden />
                     </Link>
                   </div>
-                  <div className="relative h-72 w-full overflow-hidden rounded-2xl">
+                  <div
+                    className={cn(
+                      'relative w-full overflow-hidden rounded-2xl',
+                      service.portraitImage
+                        ? 'mx-auto aspect-[3/4] w-full max-w-sm'
+                        : 'h-72'
+                    )}
+                  >
                     <Image
                       src={service.image}
                       alt=""
                       fill
-                      className="object-cover"
+                      className={cn('object-cover', service.portraitImage && 'object-center')}
                       sizes="(max-width:1024px) 100vw, 50vw"
                     />
                     <div className="absolute bottom-3 left-3 rounded-full bg-white/90 px-3 py-1 font-dm text-xs font-medium text-charcoal">

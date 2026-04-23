@@ -118,14 +118,14 @@ export default function Navbar() {
       <header className="sticky top-0 z-[520] lg:z-[100]">
         <TopContactBar />
         <nav className="border-b border-brand-green/15 bg-white">
-        <div className="relative mx-auto flex h-16 max-w-7xl items-center gap-4 px-6 lg:px-10">
-          <Link href="/" className="relative h-9 w-[140px] flex-shrink-0">
+        <div className="relative mx-auto flex min-h-16 max-w-7xl items-center gap-4 px-6 py-1 lg:px-10">
+          <Link href="/" className="relative h-[54px] w-[210px] flex-shrink-0">
             <Image
               src="/images/Logo-1.png"
               alt="360 Living Foundation"
               fill
               className="object-contain object-left"
-              sizes="140px"
+              sizes="210px"
               priority
             />
           </Link>

@@ -49,7 +49,7 @@ export const homepage = {
   purpose: {
     eyebrow: 'Our Purpose',
     body:
-      'The Foundation exists to bridge the gap between potential and reality through counselling, mentorship, and life development programmes.',
+      'To bridge the gap between potential and real-life outcomes by transforming mindsets through counselling, mentorship, and structured development.',
     ctas: [
       { label: 'Apply for a Program', href: '/get-involved#apply' },
       { label: 'Partner With Us', href: '/get-involved#partner' },
@@ -241,8 +241,8 @@ export const about = {
     titleLines: ['Bridging potential', 'and reality through', 'impact & care'],
     lead:
       'The 360 Living Foundation exists to bridge the gap between potential and reality through counselling, mentorship, and life development programmes — especially for youth and women.',
-    heroImageSrc: '/images/stressed-black-woman.jpg',
-    heroImageAlt: 'Seeking support for mental well-being',
+    heroImageSrc: '/images/mentor.jpg',
+    heroImageAlt: 'Mentorship and support with 360 Living Foundation',
     floatingCard: {
       title: 'Programmes & outreach',
       subtitle: 'Counselling, mentorship, and community impact',
@@ -325,6 +325,8 @@ export type ProgramAccordionItem = {
   tag: string
   tagColor: 'pink' | 'green'
   image: string
+  /** When true, expanded accordion image uses a portrait frame (taller aspect). */
+  portraitImage?: boolean
   body: string
   bullets: string[]
   cta: { label: string; href: string }
@@ -337,7 +339,7 @@ export const programsAccordion: ProgramAccordionItem[] = [
     title: 'Thrive360 Experience',
     tag: 'Experience',
     tagColor: 'pink',
-    image: '/images/services/individual-counseling.jpeg',
+    image: '/images/lecture.jpeg',
     body:
       'The Thrive360 Experience is a powerful mental well-being event designed to inspire personal transformation and connect individuals with meaningful growth opportunities. The event brings together participants for a journey of learning, deep reflection, and lasting change. Through a supportive environment, attendees can engage in activities and discussions that foster both self-discovery and collective empowerment, making the Thrive360 Experience a catalyst for holistic development.',
     bullets: [
@@ -365,7 +367,8 @@ export const programsAccordion: ProgramAccordionItem[] = [
     title: 'Thrive360 Accelerator',
     tag: 'Growth',
     tagColor: 'pink',
-    image: '/images/african-psychologist.webp',
+    image: '/images/office-lecture.jpg',
+    portraitImage: true,
     body:
       'A programme focused on growth for individuals seeking clarity, leadership, and advancement. This programme is designed to help participants rise with confidence.',
     bullets: [
@@ -498,6 +501,8 @@ export const resourcesPage = {
 export const successStoriesPage = {
   title: 'Success Stories',
   intro: 'Stories from participants will appear here as we collect and publish them with consent.',
+  heroImageSrc: '/images/hhh.jpg',
+  heroImageAlt: 'Community and growth — success stories from the Foundation',
   placeholder: homepage.testimonials.items[0],
 } as const
 

@@ -33,7 +33,7 @@ export default function Testimonials() {
           <div>
             <div className="relative">
               <Image
-                src="/anxietydisorder.jpeg"
+                src="/images/hhh.jpg"
                 alt="Community and well-being"
                 width={800}
                 height={640}
