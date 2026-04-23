@@ -31,24 +31,21 @@ export default function TeamHero() {
           </div>
         </div>
 
-        <div className="relative mx-auto h-80 w-full max-w-md lg:max-w-none">
+        <div className="mx-auto flex max-w-lg items-center justify-center gap-6 sm:gap-8 lg:max-w-none lg:justify-end lg:pr-4">
           <Image
             src="/images/Rev.Angela.jpeg"
             alt="Rev. Angela Carmen Appiah"
             width={192}
             height={256}
-            className="absolute left-0 top-0 h-64 w-48 rounded-2xl border-4 border-white object-cover object-top shadow-sm"
+            className="h-64 w-48 shrink-0 -translate-y-2 rounded-2xl border-4 border-white object-cover object-top shadow-sm sm:-translate-y-3"
           />
           <Image
             src="/images/selasi.jpeg"
             alt="Selasi Doku"
             width={192}
             height={256}
-            className="absolute bottom-0 right-0 h-64 w-48 rounded-2xl border-4 border-white object-cover object-top shadow-sm"
+            className="h-64 w-48 shrink-0 translate-y-5 rounded-2xl border-4 border-white object-cover object-top shadow-sm sm:translate-y-7"
           />
-          <div className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full border border-gray-100 bg-white px-4 py-2 shadow-sm">
-            <span className="font-dm text-xs font-medium text-charcoal">Meet Our Board ✦</span>
-          </div>
         </div>
       </div>
     </section>
